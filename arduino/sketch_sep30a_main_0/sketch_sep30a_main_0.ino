@@ -78,7 +78,7 @@ imu::Vector<3> linear_acceleration;
 void setup() {
   // put your setup code here, to run once:
   Serial1.begin(460800);
-  Serial1.setTimeout(20);
+  Serial1.setTimeout(1000);
   Serial1.println("Orientation Sensor Raw Data Test");
 
   steering_pin = digitalPinToInterrupt(4);
@@ -157,12 +157,12 @@ void printControl() {
 
 void updateControl() {
   if (control.steering_pwm > 800 && control.steering_pwm < 2200) {
-    steering_servo.writeMicroseconds(state.radio_steering_pwm);
+    steering_servo.writeMicroseconds(control.steering_pwm);
   } else {
     steering_servo.writeMicroseconds(steering_center_pwm);
   }
-  if (control.throttle_pwm > 1300 && control.throttle_pwm < 1700) {
-    throttle_servo.writeMicroseconds(state.radio_throttle_pwm);
+  if (control.throttle_pwm > 800 && control.throttle_pwm < 2200) {
+    throttle_servo.writeMicroseconds(control.throttle_pwm);
   } else {
     throttle_servo.writeMicroseconds(throttle_center_pwm);
   }

@@ -1,7 +1,7 @@
 $fs=0.2;
 
 plate_width = 130.0;
-plate_depth = 130.0;
+plate_depth = 120.0;
 plate_thickness = 2.5;
 
 main_standoff_mounting_holes = [
@@ -19,7 +19,7 @@ module esc_cutout() {
         cube([62.0, 38.0 * 2.0, plate_thickness * 4.0], 
             center=true);
     }
-    translate([0.0, 28.0, 0.0]) {
+    translate([0.0, 23.0, 0.0]) {
         cylinder(h=10.0,r=5, center=true);
     }
 }
@@ -51,13 +51,16 @@ module main_plate_base() {
             center=true);
     }
     for (hole = pi_holes) {
-        translate([hole[0] + 10, hole[1] - 55, 3.25]) {
-            cylinder(h=6.5,r=2.5, center=true);
+        translate([hole[0] + 10, hole[1] - 55, 8]) {
+            cylinder(h=16,r=2.5, center=true);
+        }
+        translate([hole[0] + 10, hole[1] - 55, 5]) {
+            cylinder(h=10,r=4, center=true);
         }
     }
-    translate([0,-plate_depth/2-2,5]) {
+    translate([0,-plate_depth/2-2,3.25]) {
         difference() {
-            cube([20,10,10], center=true);
+            cube([20,10,6.5], center=true);
             translate([0,0,2.5])
                 cube([16,4,10], center=true);
         }
@@ -69,7 +72,7 @@ module breadboard() {
 }
 
 module breadboard_support() {
-    cube([54.45, 4, 4.0]);
+    cube([54.45, 10, 4.0]);
 }
 
 module breadboard_clip() {
@@ -99,16 +102,15 @@ module breadboard_clips() {
 
 module breadboard_mount() {
     union() {
-        translate([(-plate_width/2)+4,(-plate_depth/2)+8,2.5]) {
+        translate([(-plate_width/2)+4,(-plate_depth/2),2.5]) {
             breadboard_support();
         }
-        translate([(-plate_width/2)+4,(-plate_depth/2)+4+82.56/2-5,2.5]) {
+        translate([(-plate_width/2)+4,(-plate_depth/2)-2+82.56/2-5,2.5]) {
             breadboard_support();
         }
-        translate([(-plate_width/2)+4,(-plate_depth/2)+4+82.56-8,2.5]) {
+        translate([(-plate_width/2)+4,(-plate_depth/2)-3+82.56-8,2.5]) {
             breadboard_support();
         }
-        breadboard_clips();
     }
 }
 
@@ -129,14 +131,14 @@ module main_plate() {
             }
             for (hole = pi_holes) {
                 translate([hole[0] + 10, hole[1] - 55, 0.0]) {
-                    cylinder(h=20.0,r=1.125, center=true);
+                    cylinder(h=40.0,r=1.135, center=true);
                 }
             }
             translate([-plate_width/2+4, 6, 0.0]) {
-                cylinder(h=20.0,r=1.125, center=true);
+                cylinder(h=20.0,r=1.135, center=true);
             }
             translate([-plate_width/2+4, -11, 0.0]) {
-                cylinder(h=20.0,r=1.125, center=true);
+                cylinder(h=20.0,r=1.135, center=true);
             }
         }
     }
@@ -144,6 +146,6 @@ module main_plate() {
 
 
 main_plate();
-translate([(-plate_width/2)+4,(-plate_depth/2)+4,6.5]) {
+translate([(-plate_width/2)+4,(-plate_depth/2)-1,6.5]) {
     %breadboard();
 }
