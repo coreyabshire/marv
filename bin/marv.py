@@ -92,13 +92,16 @@ class MARV():
     def __init__(self):
         self.state_history = []
         self.camera = PiCamera()
-        self.camera.resolution = (640, 480)
+        time.sleep(2)
+        self.vw = vw = 640
+        self.vh = vh = 480
+        self.camera.resolution = (self.vw, self.vh)
         self.camera.awb_mode = 'off'
-        self.camera.awb_gains = (0.8, 0.8)
+        self.camera.awb_gains = (1.2, 1.8)
 
         self.base_filename = 'output'
         self.time_to_run_seconds = 120
-        self.update_frequency = 100
+        self.update_frequency = 20.0
         self.interval = 1.0 / self.update_frequency
         self.count_limit = self.update_frequency * self.time_to_run_seconds
 
@@ -106,11 +109,33 @@ class MARV():
 
         self.steering_pwm = 0
         self.throttle_pwm = 0
+        self.output = np.empty(vw * vh + vw // 2 * vh // 2 * 2, dtype=np.uint8)
 
         self.rtcm = RTCM()
 
     def update(self):
+        try:
+            self.camera.capture(self.output, 'yuv', use_video_port=True)
+            #print('captured image', time.time())
+            vw, vh = self.vw, self.vh
+            #y = self.output[:vw*vh].reshape(vh,vw)
+            u = self.output[vw*vh:vw*vh+vw//2*vh//2].reshape(vh//2,vw//2)
+            u = u[-vh//8:,:]
+            np.save('images/u%d.npy' % (self.count % 5), u)
+            y, x = np.where(u < 85)
+            #print(y, x)
+            #print(x.mean())
+            self.steering_pwm = int(round((((x.mean() - (vw/4))/(vw/4)) * -400.0 + 1391.0)))
+        except Exception as e:
+            print(e)
+            self.steering_pwm = 1391
+            self.throttle_pwm = 1490
+        print(x.mean(), self.steering_pwm, list(np.polyfit(x, y, 1)))
         self.state = self.rtcm.update(self.steering_pwm, self.throttle_pwm)
+        #v = self.output[vw*vh+vw//2*vh//2:].reshape(vh//2,vw//2)
+        #np.save('images/y%d.npy' % (self.count % 5), y)
+        #np.save('images/v%d.npy' % (self.count % 5), v)
+        #print(self.camera.awb_gains)
         #self.steering_pwm = self.state.radio_steering_pwm
         #self.throttle_pwm = self.state.radio_throttle_pwm
         print(self.state.encoder0_count, self.state.encoder1_count, self.state.steering_servo_voltage, self.state.radio_steering_pwm, self.state.radio_throttle_pwm, self.steering_pwm, self.throttle_pwm)
@@ -162,7 +187,7 @@ class MARV():
 def update_marv(loop, marv):
     marv.count += 1
     if marv.count < marv.count_limit:
-        loop.call_later(0.01, update_marv, loop, marv)
+        loop.call_later(marv.interval, update_marv, loop, marv)
     else:
         loop.stop()
     marv.update()
