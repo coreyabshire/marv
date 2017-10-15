@@ -18,7 +18,8 @@ void setup(){
   Serial.begin(115200);
   
   //Begin SPI in SLAVE (SCK pin, MOSI pin, MISO pin, CS pin)
-  SPI_SLAVE.begin_SLAVE(SCK, MOSI, MISO, CS0);
+  //SPI_SLAVE.begin_SLAVE(SCK, MOSI, MISO, CS0);
+  SPI_SLAVE.begin_SLAVE();
   
   //Set the CTAR0_SLAVE0 (Frame Size, SPI Mode)
   SPI_SLAVE.setCTAR_SLAVE(8, SPI_MODE0);
