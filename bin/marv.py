@@ -12,6 +12,10 @@ import csv
 import subprocess
 import os
 from datetime import datetime
+import spidev
+
+steering_center = 1391
+throttle_center = 1490
 
 def clamp(a, lo, hi):
     if a < lo:
@@ -27,11 +31,11 @@ def handle_joystick(device, marv):
         events = yield from device.async_read()
         for event in events:
             if event.type == 3 and evdev.ecodes.ABS[event.code] == 'ABS_Y':
-                v = int(round((-1.0 * clamp((event.value - 35647) / 24000, -1.0, 1.0)) * 200 + 1490))
+                v = int(round((-1.0 * clamp((event.value - 35647) / 24000, -1.0, 1.0)) * 200 + throttle_center))
                 marv.throttle_pwm = v
                 print('y-axis', v, event.value, event.type)
             elif event.type == 3 and evdev.ecodes.ABS[event.code] == 'ABS_RX':
-                v = int(round((-1.0 * clamp((event.value - 30816) / 24000, -1.0, 1.0)) * 460 + 1391))
+                v = int(round((-1.0 * clamp((event.value - 30816) / 24000, -1.0, 1.0)) * 460 + steering_center))
                 marv.steering_pwm = v
                 print('x-axis', v, event.value, event.type)
             elif event.type == 1 and event.code == 305 and event.value != 2:
@@ -52,7 +56,7 @@ class RTCM(object):
     """RTCM == Real-Time Control Module (basically, the Teensy part)"""
     
     ControlTuple = namedtuple('Control', 'steering_pwm throttle_pwm')
-    ControlStruct = Struct('hh')
+    ControlStruct = Struct('<hh52x')
 
     StateTuple = namedtuple('RTCMState', 'timestamp '
         'orientation_x orientation_y orientation_z '
@@ -60,18 +64,23 @@ class RTCM(object):
         'radio_steering_pwm radio_throttle_pwm '
         'encoder0_count encoder1_count '
         'steering_servo_voltage')
-    StateStruct = Struct('iffffffiiiii')
+    StateStruct = Struct('<5x1L6f5i3x')
 
     def __init__(self):
-        self.ser = serial.Serial('/dev/serial0', 460800, timeout=1)
+        self.spi = spidev.SpiDev()
+        bus = 0
+        device = 0
+        self.spi.open(bus, device)
+        self.spi.max_speed_hz = 2000000
+        self.spi.mode = 0b00
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         try:
-            self.ser.close()
-            print('closed serial connection')
+            spi.close()
+            print('closed spi connection')
         except Exception as e:
             print('failed to close serial connection')
         if exc_type is not None:
@@ -80,10 +89,12 @@ class RTCM(object):
         return self
 
     def update(self, steering_pwm, throttle_pwm):
+        print(steering_pwm, throttle_pwm)
         control = RTCM.ControlTuple._make((steering_pwm, throttle_pwm))
-        self.ser.write(RTCM.ControlStruct.pack(*control))
-        rtcm_bytes = self.ser.read(RTCM.StateStruct.size)
-        state = RTCM.StateTuple._make(RTCM.StateStruct.unpack(rtcm_bytes))
+        #self.ser.write(RTCM.ControlStruct.pack(*control))
+        to_send = RTCM.ControlStruct.pack(*control)
+        rtcm_bytes = self.spi.xfer(list(to_send))
+        state = RTCM.StateTuple._make(RTCM.StateStruct.unpack(bytearray(rtcm_bytes)))
         return state
 
 
@@ -100,15 +111,15 @@ class MARV():
         self.camera.awb_gains = (1.2, 1.8)
 
         self.base_filename = 'output'
-        self.time_to_run_seconds = 120
-        self.update_frequency = 20.0
+        self.time_to_run_seconds = 30
+        self.update_frequency = 50.0
         self.interval = 1.0 / self.update_frequency
         self.count_limit = self.update_frequency * self.time_to_run_seconds
 
         self.count = 0
 
-        self.steering_pwm = 0
-        self.throttle_pwm = 0
+        self.steering_pwm = steering_center
+        self.throttle_pwm = throttle_center
         self.output = np.empty(vw * vh + vw // 2 * vh // 2 * 2, dtype=np.uint8)
 
         self.rtcm = RTCM()
@@ -125,12 +136,12 @@ class MARV():
             y, x = np.where(u < 85)
             #print(y, x)
             #print(x.mean())
-            self.steering_pwm = int(round((((x.mean() - (vw/4))/(vw/4)) * -400.0 + 1391.0)))
+            #self.steering_pwm = int(round((((x.mean() - (vw/4))/(vw/4)) * -400.0 + 1391.0)))
         except Exception as e:
-            print(e)
+            print('erroru:',e)
             self.steering_pwm = 1391
             self.throttle_pwm = 1490
-        print(x.mean(), self.steering_pwm, list(np.polyfit(x, y, 1)))
+        #print(x.mean(), self.steering_pwm, list(np.polyfit(x, y, 1)))
         self.state = self.rtcm.update(self.steering_pwm, self.throttle_pwm)
         #v = self.output[vw*vh+vw//2*vh//2:].reshape(vh//2,vw//2)
         #np.save('images/y%d.npy' % (self.count % 5), y)
@@ -178,8 +189,8 @@ class MARV():
                 if sleep_time > 0.0:
                     time.sleep(sleep_time)
             except Exception as e:
-                print(e)
-                time.sleep(1.0)
+                print('error:', e)
+                #time.sleep(1.0)
         print('stop_recording', '%s.h264' % (self.base_filename, ))
         self.camera.stop_recording()
         self.finish()
