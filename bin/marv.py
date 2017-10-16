@@ -17,6 +17,9 @@ import spidev
 steering_center = 1391
 throttle_center = 1490
 
+start_time = None
+stop_time = None
+
 def clamp(a, lo, hi):
     if a < lo:
         return lo
@@ -111,7 +114,7 @@ class MARV():
         self.camera.awb_gains = (1.2, 1.8)
 
         self.base_filename = 'output'
-        self.time_to_run_seconds = 30
+        self.time_to_run_seconds = 30.0
         self.update_frequency = 50.0
         self.interval = 1.0 / self.update_frequency
         self.count_limit = self.update_frequency * self.time_to_run_seconds
@@ -157,7 +160,7 @@ class MARV():
 
     def process_video(self):
         subprocess.call('rm %s.mp4' % (self.base_filename, ), shell=True)
-        subprocess.call('MP4Box -add %s.h264 %s.mp4' % (self.base_filename, self.base_filename), shell=True)
+        subprocess.call('MP4Box -add %s.h264:fps=30 %s.mp4' % (self.base_filename, self.base_filename), shell=True)
         subprocess.call('rm %s.h264' % (self.base_filename, ), shell=True)
 
     def write_state_history(self):
@@ -191,13 +194,16 @@ class MARV():
             except Exception as e:
                 print('error:', e)
                 #time.sleep(1.0)
+        print('center steering and throttle')
+        self.rtcm.update(steering_center, throttle_center)
         print('stop_recording', '%s.h264' % (self.base_filename, ))
         self.camera.stop_recording()
         self.finish()
 
 def update_marv(loop, marv):
     marv.count += 1
-    if marv.count < marv.count_limit:
+    elapsed_time = time.time() - start_time
+    if elapsed_time < marv.time_to_run_seconds:
         loop.call_later(marv.interval, update_marv, loop, marv)
     else:
         loop.stop()
@@ -212,12 +218,20 @@ if __name__ == '__main__':
 
     asyncio.async(handle_joystick(joystick, marv))
 
+    start_time = time.time()
     loop = asyncio.get_event_loop()
     loop.call_soon(update_marv, loop, marv)
     loop.run_forever()
+    stop_time = time.time()
 
     print('stop_recording', '%s.h264' % (marv.base_filename, ))
     marv.camera.stop_recording()
+    print('total_time:', stop_time - start_time)
+
+    time.sleep(0.02)
+    print('center steering and throttle')
+    print(marv.rtcm.update(steering_center, throttle_center))
+
     marv.finish()
 
     #marv.run()
