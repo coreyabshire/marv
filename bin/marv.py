@@ -142,8 +142,8 @@ class MARV():
             #self.steering_pwm = int(round((((x.mean() - (vw/4))/(vw/4)) * -400.0 + 1391.0)))
         except Exception as e:
             print('erroru:',e)
-            self.steering_pwm = 1391
-            self.throttle_pwm = 1490
+            self.steering_pwm = steering_center
+            self.throttle_pwm = throttle_center
         #print(x.mean(), self.steering_pwm, list(np.polyfit(x, y, 1)))
         self.state = self.rtcm.update(self.steering_pwm, self.throttle_pwm)
         #v = self.output[vw*vh+vw//2*vh//2:].reshape(vh//2,vw//2)
@@ -176,7 +176,6 @@ class MARV():
         self.process_video()
         self.write_state_history()
 
-    
     def run(self):
         self.camera.start_recording('%s.h264' % (self.base_filename, ))
         print('start_recording', '%s.h264' % (self.base_filename, ))
