@@ -1,0 +1,9 @@
+{
+    "steering_center": 1391,
+    "throttle_center": 1490,
+    "center_wheel_width": 0.265,
+    "center_wheel_length": 0.295,
+    "awb_gain_1": 1.2,
+    "awb_gain_2": 1.8
+}
+
