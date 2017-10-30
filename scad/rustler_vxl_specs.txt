@@ -1,0 +1,101 @@
+RUSTLER VXL (#37076-1) SPECS
+Length:		17.5" (445mm)
+Front Track:		12.25" (311mm)
+Rear Track:		12.25" (311mm)
+Weight:		59.6oz (1.69 kg)
+Height (overall):		7" (178mm)
+Wheelbase:		11.375" (289mm)
+Front Shock Length:		Long
+Rear Shock Length:		XXLong
+Front Tires (pre-glued):		Alias™ Ribbed 2.8"
+Rear Tires (pre-glued):		Alias™ Step-Pin 2.8"
+Front Wheels:		2.8" Black-Chome (All-Stars™)
+Rear Wheels:		2.8" Black-Chome (All-Stars™)
+Electronic Speed Control:		VXL-3s™ Electronic Speed Control
+Motor (electric):		Velineon® 3500 Brushless
+Gear Ratio (internal):		2.72 (final drive: 9.05)
+Differential Type:		Planetary
+Gear Pitch:		48-Pitch
+Transmission:		Magnum 272™
+Steering:		Bellcrank
+Chassis Type:		Modified Tub
+Chassis Material:		Composite Nylon
+Radio System:		TQi™ 2.4GHz Radio System
+Top-Speed:		70+mph**
+Skill Level:		1
+*Battery Tray Dimensions:		139mm x 47.5mm x 28mm
+Included Charger:		Traxxas 4amp DC Peak Detecting Fast Charger
+Included Batteries:		Traxxas 7-cell NiMH battery with iDTM
+Required Batteries:		4 "AA" (transmitter)
+*Battery expansion kit available (#3725X).
+**With 3S 20C LiPo battery and optional 31-tooth pinion gear (sold separately). See speed/skill chart below.
+RUSTLER VXL SPEED & SKILL LEVEL CHART
+SPEED	
+35+mph
+45+mph
+65+mph
+70mph & beyond
+GEARING
+pinion/spur	
+25/83
+28/83
+(included)
+31/76
+(sold separately)
+31/76
+(sold separately)
+BATTERY	
+6-Cell NiMH
+7-Cell NiMH
+3S 20C Lipo*
+3S 20C LiPo*
+NOMINAL
+VOLTAGE	
+7.2V
+8.4V
+11.1V
+11.1V
+mAh	
+3000+ mAh
+4000+ mAh
+(#2951)
+4000+ mAh
+(#2849X)
+8000+ mAh
+(#2857X)
+SKILL LEVEL	
+1
+2
+5
+5
+Rustler VXL (#3707/#3708) Front View (blue)
+VXL-3s (WATERPROOF) ESC SPECIFICATIONS
+Input Voltage:		NiCad/NiMH 4-9 Cells (4.8 to 10.8 Volts DC);
+LiPo 2-3 Cells (7.4 to 11.1 Volts DC)
+Case Size:		39mmW x 55mmD x 33mmH
+Weight:		90 grams
+Motor Limit (Brushed/Brushless):		No motor limit
+On Resistance Forward:		0.00075 Ohms
+On Resistance Reverse:		0.00075 Ohms
+Peak Current - Forward:		320A
+Peak Current - Reverse:		320A
+Braking Current:		320A
+Continuous Current:		200A
+BEC Voltage:		6.0 V
+BEC Current:		2.5A (with 6-cell NiMH)
+Power Wire:		12-Gauge Maxx® Cable
+Input Harness Wire:		26 Gauge / 100mm
+Transistor Type:		MOSFET
+Low Voltage Detection:		2-Stage indicators, switchable (on or off)
+Thermal Protection:		2-Stage thermal shutdown
+Profile selection:		Sport Mode:
+    100% FWD, 100% BRAKES, 100% REV
+Race Mode:
+    100% FWD, 100% BRAKES, NO REV
+Training Mode:*
+    50% FWD, 100% BRAKES, 50% REV
+Single-Button Setup:		Yes, Traxxas EZ-Set®
+Battery Input Connector:		Traxxas High-Current Connector*
+Motor Type		Brushless
+Ports:		RX Input, motor sensor, auxiliary fan
+For full details, click here.		*Patented
