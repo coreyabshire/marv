@@ -5,6 +5,7 @@ use <tft.scad>
 use <MCAD/boxes.scad>
 use <powerboost.scad>
 use <switches.scad>
+use <boardholder.scad>
 
 $fn=20;
 
@@ -65,22 +66,22 @@ module case(with_exhaust = 1) {
     hat_hull_dimensions = [72, 50, 28];
     corner_radius = 1;
     wall_thickness = 1.5;
-    side_spacing = [5, 14, 38];
+    side_spacing = [5, 14, 38]; //38
 
     // raspberry pi component support
     pi_standoffs = [49, 58];
-    pi_standoff_height = 5;
+    pi_standoff_height = 6;
     pi_offset = [0, -14, 0];
 
     // marv hat component support
-    hat_standoffs = [64.92, 44.92, 17.4];
-    hat_standoff_height = 17.4;
-    hat_offset = [0, -19, 0];
+    hat_standoffs = [64.92, 45.72, 12.4 + pi_standoff_height];
+    hat_standoff_height = 12.4 + pi_standoff_height;
+    hat_offset = [0, -19.4, 0];
     
     // tft component support
-    tft_standoffs = [61, 35.56, 26.3];
-    tft_standoff_height = 27.3;
-    tft_offset = [-3, 26, 0];
+    tft_standoffs = [61, 35.56, 21.3 + pi_standoff_height];
+    tft_standoff_height = 22.3 + pi_standoff_height;
+    tft_offset = [0, 26, 0];
     
     standoff_outer = 5;
     standoff_inner = 1.75;
@@ -113,25 +114,37 @@ module case(with_exhaust = 1) {
         }
     }
     
+    module teensy_usb_cutout() {
+        cube([12, 6, 8], center=true);
+    }
+    
+    module power_cutout() {
+        cylinder(d=8, h=8);
+    }
+    
     module bottom () {
         difference() {
             translate ([0, 0, case_hull_dimensions[2] / 2])
                 halfRoundedShell(case_hull_dimensions, corner_radius, wall_thickness);
-            translate([0, -48, 18]) rotate([90, 0, 0])
+            translate([0, -48, 16]) rotate([90, 0, 0])
                 fan_cutout(0, 0, 12.1, 10);
             if (with_exhaust) {
                 color("red") translate([0, 53, 16]) rotate([90, 0, 0])
                     exhaust_cutout();
             }
-            color("red") translate([0, 0, -1])
-                bottom_screwholes(35, 70);
+            color("red") translate([0, 10, -1])
+                bottom_screwholes(50, 50);
+            color("red") translate([11.5, -51, 35])
+                teensy_usb_cutout();
+            color("red") translate([25, -48, 10]) rotate([90, 0, 0]) 
+                power_cutout();
         }
     }
     
     module sqstandoff(dxdy, h) 
         quadstandoff(dxdy[0], dxdy[1], h, standoff_outer, standoff_inner);
     
-    bottom();
+    translate([0,0,0]) bottom();
     
     translate(pi_offset + bottom_offset) 
         sqstandoff(pi_standoffs, pi_standoff_height);
@@ -159,19 +172,19 @@ module case(with_exhaust = 1) {
             standoff_outer, standoff_inner);
     
     module tft_wall_standoffs(pos) {
-        wall_standoff(pos[0]/2, pos[1]/2, pos[2], -90, 10, 4, 8, 
+        wall_standoff(pos[0]/2, pos[1]/2, pos[2], -90, 7, 4, 8, 
             standoff_outer, standoff_inner);
-        wall_standoff(-pos[0]/2, pos[1]/2, pos[2], 90, 4, 4, 4, 
+        wall_standoff(-pos[0]/2, pos[1]/2, pos[2], 90, 7, 4, 4, 
             standoff_outer, standoff_inner);
-        wall_standoff(-pos[0]/2, -pos[1]/2, pos[2], 90, 4, 4, 4, 
+        wall_standoff(-pos[0]/2, -pos[1]/2, pos[2], 90, 7, 4, 4, 
             standoff_outer, standoff_inner);
-        wall_standoff(pos[0]/2, -pos[1]/2, pos[2], -90, 10, 4, 8, 
+        wall_standoff(pos[0]/2, -pos[1]/2, pos[2], -90, 7, 4, 8, 
             standoff_outer, standoff_inner);
     }
     
     module gps_wall_standoffs() {
         for (y=[2.27, -0.27-(2.54*7)]) 
-            wall_standoff(-33.27, y, 27.3, 90, 4, 4, 4, 
+            wall_standoff(-33.27, y, 22.3 + pi_standoff_height, 90, 4, 4, 4, 
                 standoff_outer, standoff_inner);
     }
     
@@ -198,7 +211,7 @@ module case(with_exhaust = 1) {
     
     
     faceplate_standoffs([case_hull_dimensions[0] - 6, 
-        case_hull_dimensions[1] - 6, side_spacing[2] - 5]);
+        case_hull_dimensions[1] - 6, case_hull_dimensions[2]/2]);
 }
 
 
@@ -206,7 +219,7 @@ module components () {
     p = 2.54;
     pi3();
     translate([-p*6, 0, 1.5 + p + 8.5]) rotate([0, 0, 90]) hat(p);
-    translate([30, 3, 26]) rotate([0, 0, -90]) tft();
+    translate([30, 0, 26]) rotate([0, 0, -90]) tft();
     //translate([20, -50, 16]) rotate([90, 0, 0]) lipo2000(with_wire=1);
     //translate([-45, -50, 34]) rotate([90, 90, 0]) powerboost1000c(has_usb_out=0);
     //translate([37, -30, 7]) rotate([0, 90, 0]) big_toggle_switch();
@@ -214,6 +227,7 @@ module components () {
 
 p = 2.54;
 
-%translate([0,-4,6.5]) rotate([0,0,90]) components();
-case();
+//%translate([0,-4,7.5]) rotate([0,0,90]) components();
+//%translate([0,35,-3]) rotate([0,0,0]) main_plate();
+case(with_exhaust=1);
 
